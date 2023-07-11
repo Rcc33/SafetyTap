@@ -1,6 +1,4 @@
 from representation.Space import MeetingRoom, Outer
-
-
 class Environment(object):
     def __init__(self):
         meeting_room = MeetingRoom()

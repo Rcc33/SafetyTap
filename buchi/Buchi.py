@@ -40,7 +40,7 @@ class BaseBuchi(object):
     def set_init_state(self, index):
         if index not in self.state_dict:
             raise Exception('State index %d invalid!' % index)
-        self.init_state = None
+        self.init_state = index
 
     def get_init_state(self):
         return self.init_state
@@ -167,15 +167,39 @@ class BaseBuchi(object):
             self.printToGv(group, only_action)
             sys.stdout = stdout
 
-    def get_safty_specification(self):
+    def get_safty_specification(self,ts,pairs):
         for edge in self.edge_list:
-            if self.state_dict[edge.dst].acc:
-                print('ap:')
-                print(edge.ap)
+            if self.state_dict[edge.dst].acc and not self.state_dict[edge.src].acc:
+                src_index_ts = pairs[edge.src][0]
+                dst_index_ts = pairs[edge.dst][0]
+                if ts.num_state == src_index_ts:
+                    # this is the initial node, skip
+                    continue
+                (ap, action) = _getAction(ts, src_index_ts, dst_index_ts)
+                print(ap)
+                print(action)
+
+def _getAction(ts, index_src, index_dst):
+    label_list = ts.label_list
+    ap_list = ts.ap_list
+    record_exp_list = []
+    tran = [t for t in ts.trans_list if t.src_index == index_src and t.dst_index == index_dst]
+    assert len(tran) == 1
+    description = tran[0].act
+    action_str = ' & '.join([record_exp if _recordSatisfy(description, record_exp) else '!' + record_exp
+                                 for record_exp in record_exp_list])
+    label = list()
+    for index, ap in enumerate(ap_list):
+        entry = ap if label_list[index_src][index] == '1' else '!' + ap
+        label.append(entry)
+    ap = ' & '.join(label)
+    if action_str:
+        ap = ap + ' & %s' % action_str
+    return (ap, tran[0].act)
 
 class Buchi(BaseBuchi):
     ''' In this class, State().acc store 1 (for acceptance states) or 0 (for non-acceptance states) '''
-    def __init__(self = None):
+    def __init__(self):
         super(Buchi, self).__init__()
         self.acc_num = 1
 
@@ -195,7 +219,7 @@ class Buchi(BaseBuchi):
 
 class GenBuchi(BaseBuchi):
     ''' In this class, State().acc is a list of all acceptance sets a state is in '''
-    def __init__(self = None):
+    def __init__(self):
         super(GenBuchi, self).__init__()
 
     def set_acc_num(self, acc_num):
@@ -213,7 +237,7 @@ class GenBuchi(BaseBuchi):
     def get_state_acc(self, index):
         return self.state_dict[index].acc
 
-    def get_acc_states(self, ac_index = (None,)):
+    def get_acc_states(self, ac_index = None):
         if not ac_index:
             return [index for index, state in self.state_dict.items() if not state.acc]
         if ac_index >= self.acc_num:
@@ -328,7 +352,7 @@ def ltl_to_spot(formula):
     :param formula: input formula
     :return: spot buchi automaton
     '''
-    aut = spot.translate(formula, 'BA', default_bdd_dict, **('dict',))
+    aut = spot.translate(formula, 'BA', dict=default_bdd_dict)
     return aut
 
 
@@ -375,10 +399,9 @@ def spot_to_buchi(aut, state_map = None):
             cond_formula = spot.bdd_to_formula(edge.cond, aut.get_dict())
             cond_formula_str = cond_formula.to_str().replace('"', '')
             if not state_map:
-                buchi.add_edge(edge.src, edge.dst, cond_formula_str, str(edge.cond), **('description',))
+                buchi.add_edge(edge.src, edge.dst, cond_formula_str, description=str(edge.cond))
             else:
-                buchi.add_edge(state_map[edge.src], state_map[edge.dst], cond_formula_str, str(edge.cond), **('description',))
-            print(str(edge.cond))
+                buchi.add_edge(state_map[edge.src], state_map[edge.dst], cond_formula_str, description=str(edge.cond))
     return buchi
 
 
@@ -401,8 +424,8 @@ def product(buchi1, buchi2):
     :param buchi2: right buchi
     :return: result, the product of buchi1 and buchi2; pairs: index -> (index1, index2) the origin of states
     """
-    (aut1, map1) = buchi1.toSpot()
-    (aut2, map2) = buchi2.toSpot()
+    (aut1, map1) = buchi1.to_spot()
+    (aut2, map2) = buchi2.to_spot()
     aut = spot.product(aut1, aut2)
 
     # print(aut1.to_str())
@@ -414,6 +437,7 @@ def product(buchi1, buchi2):
 
     pairs = [(map1[s1], map2[s2]) for s1, s2 in pairs_spot]
     for index, pair in enumerate(pairs):
-        result.setStateDescription(index, '%d, %d' % pair)
+        result.set_state_description(index, '%d, %d' % pair)
 
     return result, pairs
+

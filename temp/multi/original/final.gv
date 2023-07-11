@@ -1,0 +1,34 @@
+digraph G {
+	subgraph cluster1 {
+		label = "Cluster 1"
+		s0 [label="4, 1, acc=<[]>"]
+		s1 [label="0, 1, acc=<[]>"]
+		s2 [label="1, 1, acc=<[]>"]
+		s3 [label="2, 1, acc=<[]>"]
+	}
+	subgraph cluster0 {
+		label = "Cluster 0"
+		s4 [label="3, 0, acc=<[0]>"]
+		s5 [label="2, 0, acc=<[0]>"]
+		s6 [label="1, 0, acc=<[0]>"]
+		s7 [label="0, 0, acc=<[0]>"]
+	}
+	s0 -> s1 [label="!_triggered & !door.open & !weather.raining"]
+	s0 -> s2 [label="!_triggered & door.open & !weather.raining"]
+	s0 -> s3 [label="!_triggered & !door.open & weather.raining"]
+	s0 -> s4 [label="!_triggered & door.open & weather.raining"]
+	s4 -> s5 [label="!_triggered & !door.open & weather.raining"]
+	s4 -> s6 [label="!_triggered & door.open & !weather.raining"]
+	s6 -> s7 [label="!_triggered & !door.open & !weather.raining"]
+	s6 -> s4 [label="!_triggered & door.open & weather.raining"]
+	s7 -> s6 [label="!_triggered & door.open & !weather.raining"]
+	s7 -> s5 [label="!_triggered & !door.open & weather.raining"]
+	s5 -> s4 [label="!_triggered & door.open & weather.raining"]
+	s5 -> s7 [label="!_triggered & !door.open & !weather.raining"]
+	s3 -> s4 [label="!_triggered & door.open & weather.raining"]
+	s3 -> s1 [label="!_triggered & !door.open & !weather.raining"]
+	s2 -> s1 [label="!_triggered & !door.open & !weather.raining"]
+	s2 -> s4 [label="!_triggered & door.open & weather.raining"]
+	s1 -> s2 [label="!_triggered & door.open & !weather.raining"]
+	s1 -> s3 [label="!_triggered & !door.open & weather.raining"]
+}

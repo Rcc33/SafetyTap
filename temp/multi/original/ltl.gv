@@ -1,0 +1,9 @@
+digraph G {
+	s1 [label="1: State 1, acc=<[]>"]
+	s0 [label="0: State 0, acc=<[0]>"]
+	s1 -> s0 [label="(door.open & weather.raining) & !_triggered"]
+	s1 -> s1 [label="(!door.open | !weather.raining) & !_triggered"]
+	s0 -> s0 [label="(1) & !_triggered"]
+	s1 -> s1 [label="_triggered"]
+	s0 -> s0 [label="_triggered"]
+}
