@@ -1,5 +1,4 @@
 from representation.Device.AC import AC
-from representation.Device.Window import Window
 from representation.State import Temper
 
 class Space(object):
@@ -54,7 +53,6 @@ class MeetingRoom(Space):
         temper = Temper()
         self.env_state['temperature'] = temper
         self.device_dict['AC'] = AC(self.event_temper_lower)
-        self.device_dict['Window'] = Window()
         self.get_dict('MeetingRoom')
 
     def get_field(self):

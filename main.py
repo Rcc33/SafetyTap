@@ -1,8 +1,5 @@
 import os
-import sys
-BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
-import buchi.Buchi as Buchi
+from buchi.Buchi import Buchi
 from iotSystem.IotSystem import IoTSystem
 from representation.Environment import Environment
 
@@ -12,7 +9,7 @@ if __name__ == '__main__':
 
     ts = iot_system.transition_system
     buchi_ts = Buchi.ts_to_genbuchi(ts)
-    buchi_ltl = Buchi.ltl_to_buchi('F (MeetingRoom.Window.on & MeetingRoom.AC.on)') 
+    buchi_ltl = Buchi.ltl_to_buchi('F (MeetingRoom.Window.open & MeetingRoom.AC.on)') 
     (buchi_final, pairs) = Buchi.product(buchi_ts, buchi_ltl)
 
     os.chdir("/home/rjl/SaftyTap")
@@ -32,6 +29,5 @@ if __name__ == '__main__':
     group = [s2 for s1, s2 in pairs]
 
     print()
-    # buchi_final.printToGv(group)
-    buchi_final.get_safty_specification(ts,pairs)
+    buchi_final.printToGv(group)
 
