@@ -1,9 +1,5 @@
-import sys
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  
-sys.path.append(BASE_DIR)
 from copy import deepcopy
-import ts.TransitionSystem as TransitionSystem
+from ts import TransitionSystem
 
 def _label_generator(space_dict):
     label = []
@@ -44,7 +40,7 @@ def _apply_action(space_dict, action, act_type):
         temp[k] = deepcopy(v)
     if room_name not in temp:
         raise Exception('Unfound room %s' % room_name)
-    if action not in temp[room_name].action_dict:
+    if action_name not in temp[room_name].action_dict:
         raise Exception('Unfound action %s in room %s' % (action, room_name))
     if act_type == 'device':
         temp[room_name].action_dict[action](temp[room_name].device_dict[device_name])
