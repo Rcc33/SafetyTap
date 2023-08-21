@@ -5,6 +5,10 @@ class Temper(BaseType):
     middle = 1
     low = 0
 
+    def __init__(self, room):
+        super().__init__()
+        self.room = room
+
     def _only_one(*nums):
         count = 0
         for num in nums:

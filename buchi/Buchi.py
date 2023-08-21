@@ -176,8 +176,8 @@ class BaseBuchi(object):
                     # this is the initial node, skip
                     continue
                 (ap, action) = _getAction(ts, src_index_ts, dst_index_ts)
-                print(ap)
-                print(action)
+                # print(ap)
+                # print(action)
 
 def _getAction(ts, index_src, index_dst):
     label_list = ts.label_list
